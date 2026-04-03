@@ -122,6 +122,9 @@ esac
 # Make csv2tsv and any other files that may need compiling
 (cd $SPARCFIRE_HOME && make all) || die "could not compile files via 'make'. Is 'SPARCFIRE_HOME' correctly set?"
 
+# Check to ensure NONE of the output directories exist
+(cd "$inDir" && ls | fgrep -v -f "$SKIP") | (cd "$outDir" && while read gal; do [ -d "$gal" ] && die "Cowardly refusing to run ANY galaxy because its output directory '$outDir/$gal' already exists"; done) || die "Cowardly refusing to run because a galaxy output dir already exists"
+
 # copy only the necessary (non-skip) files to sfDir
 (cd "$inDir" && (ls | fgrep -v -f "$SKIP" | xargs --no-run-if-empty $SPARCFIRE_HOME/scripts/reverse-cp.sh $sfDir)) || die "could not copy files from '$inDir' to $sfDir"
 
@@ -211,7 +214,8 @@ ls "$sfDir" | sed -e 's/\.[Pp][Nn][Gg]$//' -e 's/\.[Jj][Pp][Ee]*[Gg]$//' -e 's/\
 	    fi
 	fi
 	echo $pngDir $f .png $SM $EF $GUIDE_DIR $outDir; done | randomizeLines; echo exit) | tee $TTY |
-    $SPARCFIRE_HOME/scripts/SpArcFiRe-stdin.sh -lookForBulge 1 -writeSettingsForEveryImage 1 -generateOrientationFieldPdf 1 "$@" | tee $outDir/SpArcFiRe.log
+    echo "Log going to $outDir/SpArcFiRe.log"
+    $SPARCFIRE_HOME/scripts/SpArcFiRe-stdin.sh -lookForBulge 1 -writeSettingsForEveryImage 1 -generateOrientationFieldPdf 1 "$@" > $outDir/SpArcFiRe.log
 ls "$sfDir" | sed -e 's/\.[Pp][Nn][Gg]$//' -e 's/\.[Jj][Pp][Ee]*[Gg]$//' -e 's/\.[Ff][Ii][Tt][Ss]$//' | fgrep -v -f "$SKIP"
 
 # Now extract the CSV files
