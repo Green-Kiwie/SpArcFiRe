@@ -32,10 +32,12 @@ COMMAND_LINE="$0 $@"
 [ $# -eq 0 ] && die "Expecting at least 3 arguments"
 
 # find a tmp directory with lots of space
-TMPDIR=`df -m /tmp /scratch/ /preserve 2>/dev/null | tail -n +2 | sort -k 4nr | awk '{print $NF; exit}'`
+
 if grep -qi "microsoft" /proc/version 2>/dev/null || grep -qi "wsl" /proc/version 2>/dev/null; then
     TMPDIR="/tmp"
     echo "WSL detected: Setting TMPDIR to $TMPDIR"
+else 
+    TMPDIR=`df -m /tmp /scratch/ /preserve 2>/dev/null | tail -n +2 | sort -k 4nr | awk '{print $NF; exit}'`
 fi
 export TMPDIR
 
